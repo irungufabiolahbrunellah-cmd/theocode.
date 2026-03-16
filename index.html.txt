@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TheoCode Ultimate</title>
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#000428,#004e92);
+color:white;
+text-align:center;
+}
+header{
+background:black;
+padding:20px;
+}
+button{
+padding:10px;
+margin:6px;
+border:none;
+border-radius:8px;
+background:#00ffc3;
+cursor:pointer;
+font-weight:bold;
+}
+.card{
+background:rgba(0,0,0,0.8);
+padding:20px;
+margin:20px auto;
+width:320px;
+border-radius:10px;
+}
+.lang{
+display:block;
+margin:6px auto;
+}
+#dashboard{
+display:none;
+}
+#theo{
+position:fixed;
+bottom:20px;
+right:20px;
+background:black;
+padding:15px;
+border-radius:10px;
+width:220px;
+}
+.chatBox{
+background:black;
+padding:15px;
+width:320px;
+margin:auto;
+border-radius:10px;
+}
+#chatWindow{
+height:120px;
+overflow:auto;
+background:#111;
+padding:10px;
+margin:10px 0;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🚀 TheoCode</h1>
+<p>Learn Coding Like a Game</p>
+</header>
+
+<div id="auth">
+<div class="card">
+<h2>Sign Up</h2>
+<input id="user" placeholder="Username"><br>
+<input id="pass" type="password" placeholder="Password"><br>
+<button onclick="signup()">Create Account</button>
+</div>
+
+<div class="card">
+<h2>Login</h2>
+<input id="loginUser" placeholder="Username"><br>
+<input id="loginPass" type="password"><br>
+<button onclick="login()">Login</button>
+</div>
+</div>
+
+<div id="dashboard">
+<h2>Welcome <span id="player"></span></h2>
+<p>XP ⭐: <span id="xp"></span></p>
+<p>Rubies 💎: <span id="rubies"></span></p>
+<p>Lives 🐛: <span id="lives"></span></p>
+
+<h3>🌍 Coding Worlds</h3>
+<button class="lang" onclick="lesson('Python')">Python</button>
+<button class="lang" onclick="lesson('JavaScript')">JavaScript</button>
+<button class="lang" onclick="lesson('HTML')">HTML</button>
+<button class="lang" onclick="lesson('CSS')">CSS</button>
+<button class="lang" onclick="lesson('C++')">C++</button>
+<button class="lang" onclick="lesson('Java')">Java</button>
+
+<h3>🎮 Mini Games</h3>
+<button onclick="bugGame()">Bug Hunter</button>
+<button onclick="speedGame()">Speed Code</button>
+
+<h3>🎯 Daily Mission</h3>
+<button onclick="daily()">Complete Daily Challenge</button>
+
+<h3>👾 Theo Friends</h3>
+<p id="friends">None</p>
+
+<h3>🏆 Leaderboard</h3>
+<p id="leaderboard"></p>
+
+<h3>💬 Connections Chat</h3>
+<div class="chatBox">
+<input id="friendName" placeholder="Add connection username">
+<button onclick="addFriend()">Add</button>
+<p><b>Your Connections</b></p>
+<ul id="friendList"></ul>
+<div id="chatWindow"></div>
+<input id="chatInput" placeholder="Type message">
+<button onclick="sendMessage()">Send</button>
+</div>
+
+</div>
+
+<div id="theo">
+<b>Theo 🤖</b>
+<p id="theoText">Click Ask Theo for coding tips!</p>
+<button onclick="theoHelp()">Ask Theo</button>
+</div>
+
+<script>
+let xp = Number(localStorage.getItem("xp")) || 0
+let rubies = Number(localStorage.getItem("rubies")) || 0
+let lives = Number(localStorage.getItem("lives")) || 5
+let friends = JSON.parse(localStorage.getItem("friends")) || []
+let messages = JSON.parse(localStorage.getItem("messages")) || []
+
+update()
+displayFriends()
+displayMessages()
+
+function signup(){
+let u=document.getElementById("user").value
+let p=document.getElementById("pass").value
+localStorage.setItem("user",u)
+localStorage.setItem("pass",p)
+alert("Account created!")
+}
+
+function login(){
+let u=document.getElementById("loginUser").value
+let p=document.getElementById("loginPass").value
+if(u==localStorage.getItem("user") && p==localStorage.getItem("pass")){
+document.getElementById("auth").style.display="none"
+document.getElementById("dashboard").style.display="block"
+document.getElementById("player").innerText=u
+updateLeaderboard()
+}else{
+alert("Wrong login")
+}
+}
+
+function lesson(lang){
+if(lives<=0){ alert("No lives left!"); return }
+let ans=prompt("Theo asks: write a keyword used in "+lang)
+if(ans){ xp+=25; alert("Nice coding!") } 
+else{ lives--; alert("Try again!") }
+save(); unlockFriends(); update()
+}
+
+function bugGame(){
+let g=prompt("Bug Hunter: which symbol ends a JS line?")
+if(g==";"){ xp+=40; alert("Bug fixed!") } 
+else{ lives--; alert("Bug still there!") }
+save(); update()
+}
+
+function speedGame(){
+let g=prompt("Speed Code: what keyword creates a function in JS?")
+if(g=="function"){ xp+=60; alert("Fast coder!") } 
+else{ lives-- }
+save(); update()
+}
+
+function daily(){
+xp+=80; alert("Daily mission complete!")
+save(); update()
+}
+
+function theoHelp(){
+let tips=["Loops repeat instructions.","Functions organize your code.","Debugging teaches you a lot.","Break big problems into smaller steps.","Practice coding daily."]
+let r=Math.floor(Math.random()*tips.length)
+document.getElementById("theoText").innerText=tips[r]
+}
+
+function unlockFriends(){
+if(xp>=300) rubies=2
+if(xp>=700) rubies=5
+if(xp>=1200) rubies=10
+if(rubies>=2) document.getElementById("friends").innerText="Byte 🤖"
+if(rubies>=5) document.getElementById("friends").innerText="Byte 🤖 + Pyra 🐍"
+if(rubies>=10) document.getElementById("friends").innerText="Byte 🤖 + Pyra 🐍 + Volt ⚡"
+}
+
+function update(){
+document.getElementById("xp").innerText=xp
+document.getElementById("rubies").innerText=rubies
+document.getElementById("lives").innerText=lives
+}
+
+function save(){
+localStorage.setItem("xp",xp)
+localStorage.setItem("rubies",rubies)
+localStorage.setItem("lives",lives)
+}
+
+function updateLeaderboard(){
+let name=localStorage.getItem("user")
+document.getElementById("leaderboard").innerText=name+" — "+xp+" XP"
+}
+
+function addFriend(){
+let name=document.getElementById("friendName").value
+if(name){ friends.push(name)
+localStorage.setItem("friends",JSON.stringify(friends))
+displayFriends()
+}
+}
+
+function displayFriends(){
+let list=document.getElementById("friendList")
+list.innerHTML=""
+friends.forEach(f=>{
+let li=document.createElement("li")
+li.innerText=f
+list.appendChild(li)
+})
+}
+
+function sendMessage(){
+let msg=document.getElementById("chatInput").value
+if(msg){ messages.push(msg)
+localStorage.setItem("messages",JSON.stringify(messages))
+displayMessages()
+}
+}
+
+function displayMessages(){
+let chat=document.getElementById("chatWindow")
+chat.innerHTML=""
+messages.forEach(m=>{
+let p=document.createElement("p")
+p.innerText=m
+chat.appendChild(p)
+})
+}
+</script>
+
+</body>
+</html>
